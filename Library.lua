@@ -3206,9 +3206,13 @@ end
                 Settings:Keybind({
                     Name = "Menu Keybind",
                     Flag = "MenuBind",
-                    Default = Enum.KeyCode.Z,
+                    Default = Enum.KeyCode.Delete,
                     Callback = function(Value)
-                        Window:SetOpen(Value)
+        if type(Window.SetOpen) == "function" then
+            Window:SetOpen(Value)
+        else
+            warn("Window:SetOpen() does not exist")
+        end
                     end
                 })
 
