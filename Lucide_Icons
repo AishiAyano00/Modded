@@ -1487,7 +1487,19 @@ IconModule.Material = {
 }
 
 function IconModule.GetIcon(Name)
-    return IconModule.Material[Name]
+    local Icon = IconModule.Material[Name]
+
+    if not Icon then
+        return nil
+    end
+
+    local Id = string.match(Icon, "%d+")
+
+    if Id then
+        return "rbxassetid://" .. Id
+    end
+
+    return Icon
 end
 
 return IconModule
