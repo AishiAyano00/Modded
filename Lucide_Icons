@@ -1496,7 +1496,7 @@ function IconModule.GetIcon(Name)
     local Id = string.match(Icon, "%d+")
 
     if Id then
-        return "rbxassetid://" .. Id
+        return Id
     end
 
     return Icon
