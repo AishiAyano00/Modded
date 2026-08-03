@@ -5151,13 +5151,13 @@ end
                             SettingsItem["Settings"].Instance.Size = UDim2New(0, 245, 0, Size)
                         end)
     
-                        for Index, Value in Library.OpenFrames do 
-                            if Value ~= Settings then 
-                                Value:SetOpen(false)
-                            end
-                        end
+for Index, Value in Library.OpenFrames do 
+    if Value ~= Settings and type(Value.SetOpen) == "function" then
+        Value:SetOpen(false)
+    end
+end
     
-                        Library.OpenFrames[Settings] = Settings 
+                        table.insert(Library.OpenFrames, Settings)
                     else
                         for Index, Value in Settings.Elements do
                             Value:RefreshPosition(false)
