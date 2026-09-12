@@ -1,3 +1,4 @@
+
 local httpService = game:GetService('HttpService')
 
 local SaveManager = {} do
@@ -256,9 +257,7 @@ local SaveManager = {} do
 			writefile(self.Folder .. '/settings/autoload.txt', name)
 			SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. name)
 			self.Library:Notify(string.format('Set %q to auto load', name))
-		end)
-
-        section:AddButton('Remove autoload', function()
+		end):AddButton('Remove autoload', function()
         	local Path = self.Folder .. '/settings/autoload.txt'
         
         	if isfile(Path) then
