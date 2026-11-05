@@ -1,0 +1,129 @@
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Notification = {}
+local BaseY = -150
+local Spacing = 38
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NotificationUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = gethui()
+
+local function OnCreateNotif(Message)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 230, 0, 32)
+    Frame.AnchorPoint = Vector2.new(0.5, 1)
+    Frame.Position = UDim2.new(0.5, 0, 1, BaseY)
+    Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    Frame.BackgroundTransparency = 1
+    Frame.BorderSizePixel = 0
+    Frame.ClipsDescendants = true
+    Frame.Visible = false
+    Frame.Parent = ScreenGui
+
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(1, 0)
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Thickness = 2
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Transparency = 1
+    Stroke.Parent = Frame
+
+    local Text = Instance.new("TextLabel")
+    Text.Size = UDim2.new(1, -10, 1, 0)
+    Text.Position = UDim2.new(0, 5, 0, 0)
+    Text.BackgroundTransparency = 1
+    Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Text.Font = Enum.Font.Gotham
+    Text.TextSize = 14
+    Text.TextWrapped = true
+    Text.TextYAlignment = Enum.TextYAlignment.Center
+    Text.TextXAlignment = Enum.TextXAlignment.Center
+    Text.Text = tostring(Message)
+    Text.TextTransparency = 1
+    Text.Parent = Frame
+
+    return Frame, Stroke, Text
+end
+
+local function OnLapPosition()
+    for Index, Data in ipairs(Notification) do
+        local Yield = BaseY - ((Index - 1) * Spacing)
+
+        TweenService:Create(Data.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Sine), {
+            Position = UDim2.new(0.5, 0, 1, Yield)
+        }):Play()
+    end
+end
+
+function Notification:Notify(Message, Duration)
+    local Frame, Stroke, Text = OnCreateNotif(Message)
+
+    table.insert(Notification, 1, {
+        Frame = Frame,
+        Stroke = Stroke,
+        Text = Text
+    })
+
+    OnLapPosition()
+
+    Frame.Position = UDim2.new(0.5, 0, 1, BaseY - 20)
+    Frame.Size = UDim2.new(0, 210, 0, 28)
+    Frame.Visible = true
+
+    TweenService:Create(Frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.35,
+        Size = UDim2.new(0, 230, 0, 32)
+    }):Play()
+
+    TweenService:Create(Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Transparency = 0.15
+    }):Play()
+
+    TweenService:Create(Text, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = 0
+    }):Play()
+
+    task.delay(tonumber(Duration) or 2, function()
+        if not Frame.Parent then
+            return
+        end
+
+        local ExitTween = TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            BackgroundTransparency = 1,
+            Position = Frame.Position + UDim2.new(0, 0, 0, 20),
+            Size = UDim2.new(0, 210, 0, 28)
+        })
+
+        local StrokeTween = TweenService:Create(Stroke, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Transparency = 1
+        })
+
+        local TextTween = TweenService:Create(Text, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            TextTransparency = 1
+        })
+
+        ExitTween:Play()
+        StrokeTween:Play()
+        TextTween:Play()
+
+        ExitTween.Completed:Wait()
+
+        for Index = #Notification, 1, -1 do
+            if Notification[Index].Frame == Frame then
+                table.remove(Notification, Index)
+                break
+            end
+        end
+
+        Frame:Destroy()
+        OnLapPosition()
+    end)
+end
+
+return Notification
